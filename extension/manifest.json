@@ -4,8 +4,7 @@
   "version": "0.1.0",
   "description": "Accept all the cookies. Be spiritually informed. Forever.",
   "permissions": [
-    "storage",
-    "notifications"
+    "storage"
   ],
   "host_permissions": [
     "<all_urls>"

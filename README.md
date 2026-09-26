@@ -8,7 +8,7 @@ The Chrome extension tries to click the accept-all button before you have to see
 
 **Install v0.1 locally:** Download this repository, visit `chrome://extensions`, enable Developer mode, click **Load unpacked**, and select the `extension/` folder. No store release yet. For Firefox, MV3 support differs by version; this build has not been verified on Firefox.
 
-**Honest limits:** Clicking isn't proof that the site persisted consent. Some banners load in closed shadow DOM, inaccessible frames, or have different selectors and will escape. The counter counts click attempts, not verified consents. This is accept-all, not a privacy tool. No browsing history, URLs, or per-site data are sent anywhere by the extension. The first clicked banner triggers a local browser notification. X is only opened if you click to share.
+**Honest limits:** Clicking isn't proof that the site persisted consent. Some banners load in closed shadow DOM, inaccessible frames, or have different selectors and will escape. The counter counts click attempts, not verified consents. This is accept-all, not a privacy tool. No browsing history, URLs, or per-site data are sent anywhere by the extension. The first clicked banner opens a one-time certificate tab, with an optional prewritten X post right below it. X is only opened if you click to share.
 
 ## For coding agents building sites
 
@@ -30,6 +30,6 @@ Do not treat a banner alone as legal compliance. Document your actual cookie pur
 
 ## Build notes
 
-The extension is plain JavaScript, Manifest V3, with a content script at `document_start`, a debounced MutationObserver, and local-only storage. The first click triggers the certificate notification; the popup shows the local click count and links to the certificate. Test with `node --check extension/*.js letemcookie.js` (or check each JS file individually). The site is hosted from this repository's root by GitHub Pages.
+The extension is plain JavaScript, Manifest V3, with a content script at `document_start`, a debounced MutationObserver, and local-only storage. The first click opens the certificate tab once; the popup shows the local click count and links to the certificate. Test with `node --check extension/*.js letemcookie.js` (or check each JS file individually). The site is hosted from this repository's root by GitHub Pages.
 
 [Get saved at letemcookie.com](https://letemcookie.com) · [Star the repo](https://github.com/letemcookie/letemcookie)

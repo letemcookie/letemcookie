@@ -8,17 +8,8 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     const { acceptedCount = 0, firstNoticeShown = false } = await chrome.storage.local.get(['acceptedCount', 'firstNoticeShown']);
     await chrome.storage.local.set({ acceptedCount: acceptedCount + 1, firstNoticeShown: true });
     if (!firstNoticeShown) {
-      await chrome.notifications.create('letemcookie-first', {
-        type: 'basic', iconUrl: chrome.runtime.getURL('icon.png'),
-        title: 'Certificate of Spiritual Informedness',
-        message: 'Your first cookie banner has been accepted. You are saved. Click to see your certificate and share it.'
-      });
+      // A one-time certificate tab is the first-accept moment. No page overlay or recurring prompt.
+      await chrome.tabs.create({ url: certificate });
     }
   }).catch(() => {});
-});
-chrome.notifications.onClicked.addListener((id) => {
-  if (id === 'letemcookie-first') {
-    chrome.tabs.create({ url: certificate });
-    chrome.notifications.clear(id);
-  }
 });
