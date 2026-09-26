@@ -33,7 +33,7 @@
       el.click();
       attempts++;
       // A click is an attempt, not proof that the site's CMP saved consent.
-      chrome.runtime.sendMessage({ type: 'LEC_ACCEPT_ATTEMPT', cmp }).catch?.(() => {});
+      chrome.runtime.sendMessage({ type: 'LEC_ACCEPT_ATTEMPT', cmp }, () => { void chrome.runtime.lastError; });
       return true;
     } catch (_) { return false; }
   };
