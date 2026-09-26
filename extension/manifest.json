@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Let 'Em Cookie",
+  "version": "0.1.0",
+  "description": "Accept all the cookies. Be spiritually informed. Forever.",
+  "permissions": [
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Let 'Em Cookie",
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  }
+}
