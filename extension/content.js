@@ -68,4 +68,62 @@
   queue();
   // Do not keep scanning forever on long-lived pages; page load and mutations do the work.
   setTimeout(() => { observer.disconnect(); if (timer) clearTimeout(timer); }, 120000);
+
+  // --- Missed-banner picker: one-shot, started from the popup. ---
+  // The user points at the real accept button; we click only that element.
+  // The highlight outline exists only while picking and is removed on use or Escape.
+  let picking = false, hovered = null, previousOutline = '';
+  const cssEscape = (value) => (window.CSS && CSS.escape) ? CSS.escape(value) : value.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  const describe = (el) => {
+    const parts = [];
+    for (let node = el; node && node.nodeType === 1 && parts.length < 5; node = node.parentElement) {
+      let part = node.tagName.toLowerCase();
+      if (node.id) { part += '#' + cssEscape(node.id); parts.unshift(part); break; }
+      const cls = [...node.classList].slice(0, 2).map((c) => '.' + cssEscape(c)).join('');
+      part += cls;
+      if (!cls && node.parentElement) {
+        const same = [...node.parentElement.children].filter((s) => s.tagName === node.tagName);
+        if (same.length > 1) part += `:nth-of-type(${same.indexOf(node) + 1})`;
+      }
+      parts.unshift(part);
+    }
+    return parts.join(' > ');
+  };
+  const restore = () => { if (hovered) { hovered.style.outline = previousOutline; hovered = null; } };
+  const stopPicking = () => {
+    picking = false;
+    restore();
+    document.documentElement.style.cursor = '';
+    document.removeEventListener('mouseover', onHover, true);
+    document.removeEventListener('click', onPick, true);
+    document.removeEventListener('keydown', onKey, true);
+  };
+  const onHover = (event) => {
+    if (!picking) return;
+    restore();
+    hovered = event.target;
+    previousOutline = hovered.style.outline;
+    hovered.style.outline = '3px solid #b65d15';
+  };
+  const onPick = (event) => {
+    if (!picking) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const target = event.target.closest('button, [role="button"], a, input[type="button"], input[type="submit"], summary') || event.target;
+    const selector = describe(target);
+    stopPicking();
+    // The user chose this element; clicking it is the whole point of the picker.
+    // Counted once via LEC_PICKED, not again via LEC_ACCEPT_ATTEMPT.
+    if (!tried.has(target)) { tried.add(target); try { target.click(); attempts++; } catch (_) {} }
+    chrome.runtime.sendMessage({ type: 'LEC_PICKED', host: location.hostname, selector }, () => { void chrome.runtime.lastError; });
+  };
+  const onKey = (event) => { if (picking && event.key === 'Escape') { event.preventDefault(); stopPicking(); } };
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg?.type !== 'LEC_PICK_START' || picking) return;
+    picking = true;
+    document.documentElement.style.cursor = 'crosshair';
+    document.addEventListener('mouseover', onHover, true);
+    document.addEventListener('click', onPick, true);
+    document.addEventListener('keydown', onKey, true);
+  });
 })();

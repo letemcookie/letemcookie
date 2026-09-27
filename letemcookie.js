@@ -48,7 +48,7 @@
     const note = document.createElement('div');
     note.style.cssText = 'font-size:12px;color:#6c6255;margin-top:3px';
     const link = document.createElement('a');
-    link.href = 'https://letemcookie.com/#how';
+    link.href = 'https://letemcookie.com';
     link.textContent = 'Never see cookie banners again';
     link.style.color = '#75501d';
     note.append(link);

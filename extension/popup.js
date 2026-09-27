@@ -1,6 +1,15 @@
-chrome.storage.local.get(['acceptedCount']).then(({ acceptedCount = 0 }) => {
+'use strict';
+chrome.storage.local.get(['acceptedCount', 'reportMiss']).then(({ acceptedCount = 0, reportMiss = false }) => {
   document.getElementById('count').textContent = `You have been saved ${acceptedCount} ${acceptedCount === 1 ? 'time' : 'times'}.`;
-  document.getElementById('certificate').hidden = acceptedCount < 1;
-  document.getElementById('view').hidden = acceptedCount < 1;
+  document.getElementById('report').checked = reportMiss;
 });
-document.getElementById('view').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('certificate.html') }));
+document.getElementById('report').addEventListener('change', (event) => {
+  chrome.storage.local.set({ reportMiss: event.target.checked });
+});
+document.getElementById('pick').addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id && /^https?:/.test(tab.url || '')) {
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'LEC_PICK_START' }); } catch (_) {}
+  }
+  window.close();
+});

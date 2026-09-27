@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Let 'Em Cookie",
-  "version": "0.1.0",
-  "description": "Accept all the cookies. Be spiritually informed. Forever.",
+  "version": "0.2.0",
+  "description": "No more cookie banners.",
   "permissions": [
     "storage"
   ],
