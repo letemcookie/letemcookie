@@ -12,7 +12,12 @@ for (const path of ['extension/share.js','share/share.js']) {
  }
  test(path+': copy uses exactly approved text',async()=>{const c=setup();await c.handlers.copy();assert.deepEqual(c.copies,[expected]);assert.equal(c.hint.textContent,'Copied.');assert.deepEqual(c.opens,[]);});
  test(path+': X opens a draft, never submits',()=>{const c=setup();c.handlers.x();assert.equal(c.opens.length,1);const url=new URL(c.opens[0][0]);assert.equal(url.origin,'https://x.com');assert.equal(url.pathname,'/intent/post');assert.equal(url.searchParams.get('text'),expected);assert.equal(c.opens[0][2],'noopener');});
- test(path+': Substack copies before opening note composer',async()=>{const c=setup();await c.handlers.substack();assert.deepEqual(c.copies,[expected]);assert.equal(c.opens[0][0],'https://substack.com/notes');});
- test(path+': Substack clipboard failure is honest',async()=>{const c=setup(true);await c.handlers.substack();assert.equal(c.hint.textContent,'Copy the text above into your new note.');assert.equal(c.opens.length,1);});
  test(path+': clipboard failure is not claimed as success',async()=>{const c=setup(true);await c.handlers.copy();assert.match(c.hint.textContent,/Select the text/);});
 }
+
+for(const path of ['share/index.html','extension/share.html']) test(path+': Substack is a native compose link with exact text, no clipboard dependency',()=>{
+ const html=fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
+ const anchor=html.match(/<a id="substack"[^>]+>/)[0];
+ const url=new URL(anchor.match(/href="([^"]+)"/)[1].replaceAll('&amp;','&'));
+ assert.equal(url.origin,'https://substack.com');assert.equal(url.pathname,'/notes');assert.equal(url.searchParams.get('action'),'compose');assert.equal(url.searchParams.get('message'),expected);assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noopener noreferrer"/);
+});

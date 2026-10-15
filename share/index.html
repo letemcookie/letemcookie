@@ -9,8 +9,8 @@ body{font:16px/1.5 system-ui,sans-serif;background:#f8eedd;color:#2e1d10;margin:
 main{max-width:680px;margin:10vh auto;text-align:center}
 p.big{font:600 clamp(28px,5.5vw,44px)/1.25 Georgia,serif;margin:0 0 40px}
 .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-button{border:0;background:#2e1d10;color:#f8eedd;border-radius:999px;padding:14px 26px;cursor:pointer;font:600 16px system-ui,sans-serif}
-button.ghost{background:none;border:1.5px solid #2e1d10;color:#2e1d10}
+button,a.share{border:0;background:#2e1d10;color:#f8eedd;border-radius:999px;padding:14px 26px;cursor:pointer;font:600 16px system-ui,sans-serif}
+button.ghost,a.share.ghost{background:none;border:1.5px solid #2e1d10;color:#2e1d10}
 p.hint{min-height:1.5em;margin:26px 0 0;color:#5a4128}
 small{display:block;margin-top:44px;color:#755e48}
 </style>
@@ -21,10 +21,10 @@ small{display:block;margin-top:44px;color:#755e48}
 <div class="row">
 <button id="copy">Copy</button>
 <button id="x" class="ghost">Share on X</button>
-<button id="substack" class="ghost">Share as Substack note</button>
+<a id="substack" class="share ghost" style="text-decoration:none;display:inline-block" href="https://substack.com/notes?action=compose&amp;message=I%20hereby%20accept%20all%20cookies%2C%20forever.%20No%20need%20to%20ask%20me%20ever%20again.%20letemcookie.com" target="_blank" rel="noopener noreferrer">Share as Substack note</a>
 </div>
 <p class="hint" id="hint"></p>
-<small>A joke, not a legal certification.</small>
+
 <p style="margin-top:30px"><a style="color:inherit" href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">Get the extension</a></p>
 </main>
 <script src="share.js"></script>

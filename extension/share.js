@@ -20,8 +20,3 @@ document.getElementById('copy').addEventListener('click', async () => {
 document.getElementById('x').addEventListener('click', () => {
   window.open('https://x.com/intent/post?text=' + encodeURIComponent(text), '_blank', 'noopener');
 });
-document.getElementById('substack').addEventListener('click', async () => {
-  const copied = await copy();
-  hint.textContent = copied ? 'Copied. Paste it into your new note.' : 'Copy the text above into your new note.';
-  window.open('https://substack.com/notes', '_blank', 'noopener');
-});
