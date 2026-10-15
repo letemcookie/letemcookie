@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Let 'Em Cookie",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "No more cookie banners.",
   "permissions": [
-    "storage"
+    "storage",
+    "alarms"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -35,5 +36,9 @@
     "32": "icon-32.png",
     "48": "icon-48.png",
     "128": "icon.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   }
 }

@@ -1,5 +1,6 @@
 'use strict';
 let update = Promise.resolve();
+importScripts('counter.js');
 const share = chrome.runtime.getURL('share.html');
 const reportUrl = (host, selector) =>
   'https://github.com/letemcookie/letemcookie/issues/new?title=' +
@@ -8,6 +9,10 @@ const reportUrl = (host, selector) =>
     `Site: ${host}\nButton I picked: ${selector}\nExtension: ${chrome.runtime.getManifest().version}\n\nWhat happened:\n`);
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!sender.tab?.id || !/^https?:/.test(sender.url || '')) return;
+  if (msg?.type === 'LEC_BANNER_GONE') {
+    update = update.then(recordCookie).then(flushCounter).catch(() => {});
+    return;
+  }
   if (msg?.type !== 'LEC_ACCEPT_ATTEMPT' && msg?.type !== 'LEC_PICKED') return;
   // Serialize increments across frames and tabs in one service-worker lifetime.
   update = update.then(async () => {
@@ -22,4 +27,22 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
       await chrome.tabs.create({ url: reportUrl(msg.host, msg.selector), active: false });
     }
   }).catch(() => {});
+});
+
+// New installs are disclosed in the store. Existing users must choose once.
+chrome.runtime.onInstalled.addListener(async (details) => {
+  const {counterChoiceVersion=0}=await chrome.storage.local.get('counterChoiceVersion');
+  if (counterChoiceVersion>=1) return;
+  if (details.reason==='install') {
+    await chrome.storage.local.set({counterEnabled:true,counterChoiceVersion:1,counterQueue:[]});
+  } else if (details.reason==='update') {
+    // Set the one-time marker before opening: dismissing the tab is a no.
+    await chrome.storage.local.set({counterEnabled:false,counterChoiceVersion:1,counterQueue:[]});
+    await chrome.tabs.create({url:chrome.runtime.getURL('counter-choice.html')});
+  }
+});
+chrome.storage.onChanged.addListener((changes,area)=>{
+  if(area!=='local' || !changes.counterEnabled) return;
+  if(changes.counterEnabled.newValue) void queueCounterFlush();
+  else update=update.then(()=>chrome.storage.local.set({counterQueue:[]})).catch(()=>{});
 });

@@ -54,6 +54,9 @@
   .btn:hover { transform: translateY(-2px); }
   .btn-primary { background: var(--choc); color: var(--cream); }
   .fineprint { margin-top: 18px; font-size: 13.5px; color: var(--choc-2); }
+  .census { margin-top:32px; font-size:15px; color:var(--choc-2); }
+  .census strong { font-variant-numeric:tabular-nums; color:var(--choc); }
+  .census small { display:block; font-size:11px; opacity:.8; margin-top:3px; }
   .cookie {
     width: 130px; height: 130px; margin: 0 auto 34px; position: relative;
     border-radius: 50%;
@@ -106,9 +109,10 @@
     <h1>Let 'Em <em>Cookie.</em></h1>
     <p class="sub">Never see a cookie banner again.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/letemcookie/letemcookie">Get the extension</a>
+      <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">Get the extension</a>
     </div>
     <p class="fineprint">Free. Open source. Chrome, for now.</p>
+    <p class="census" aria-live="polite"><strong id="eaten">...</strong> cookies eaten.<small>One banner gone. One cookie eaten.</small></p>
   </header>
 </div>
 
@@ -143,5 +147,6 @@
     </div>
   </div>
 </footer>
+<script src="counter.js"></script>
 </body>
 </html>

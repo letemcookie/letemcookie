@@ -69,6 +69,7 @@
       const saveBtn = document.querySelector(wf.save);
       if (saveBtn && visible(saveBtn)) {
         saveBtn.click();
+        void confirmGone(saveBtn);
         attempts++;
         chrome.runtime.sendMessage({ type: 'LEC_ACCEPT_ATTEMPT', cmp: wf.name }, () => { void chrome.runtime.lastError; });
       }
@@ -84,11 +85,30 @@
     const style = getComputedStyle(el);
     return box.width > 0 && box.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && !el.disabled && el.getAttribute('aria-hidden') !== 'true';
   };
+  // Count a banner only after its accept control has visibly gone away.
+  // This is an observed dismissal, not proof of saved consent or cookies set.
+  const confirmed = new WeakSet();
+  const stillRendered = (el) => {
+    if (!el.isConnected) return false;
+    const box=el.getBoundingClientRect(), style=getComputedStyle(el);
+    return box.width>0 && box.height>0 && style.display!=='none' && style.visibility!=='hidden' && style.opacity!=='0' && el.getAttribute('aria-hidden')!=='true';
+  };
+  const confirmGone = async (el) => {
+    if (confirmed.has(el)) return;
+    confirmed.add(el);
+    await sleep(700);
+    if (stillRendered(el)) {
+      await sleep(1300);
+      if (stillRendered(el)) return;
+    }
+    chrome.runtime.sendMessage({ type: 'LEC_BANNER_GONE' }, () => { void chrome.runtime.lastError; });
+  };
   const click = (el, cmp) => {
     if (tried.has(el) || !visible(el)) return false;
     tried.add(el);
     try {
       el.click();
+      void confirmGone(el);
       attempts++;
       // A click is an attempt, not proof that the site's CMP saved consent.
       chrome.runtime.sendMessage({ type: 'LEC_ACCEPT_ATTEMPT', cmp }, () => { void chrome.runtime.lastError; });
@@ -179,7 +199,7 @@
     stopPicking();
     // The user chose this element; clicking it is the whole point of the picker.
     // Counted once via LEC_PICKED, not again via LEC_ACCEPT_ATTEMPT.
-    if (!tried.has(target)) { tried.add(target); try { target.click(); attempts++; } catch (_) {} }
+    if (!tried.has(target)) { tried.add(target); try { target.click(); attempts++; void confirmGone(target); } catch (_) {} }
     chrome.runtime.sendMessage({ type: 'LEC_PICKED', host: location.hostname, selector }, () => { void chrome.runtime.lastError; });
   };
   const onKey = (event) => { if (picking && event.key === 'Escape') { event.preventDefault(); stopPicking(); } };

@@ -1,0 +1,9 @@
+# Cookies eaten counter
+GitHub Pages stays put. A Cloudflare Worker accepts one UUID-only ping per observed banner dismissal and reads an atomic D1 total. No hostname, URL, CMP, cookie values or install ID are sent. The receiving edge necessarily sees the network IP; our code stores only a secret-keyed HMAC scoped to its UTC day. Cloudflare's own processing is covered by its terms/privacy policy. Disable Workers invocation logs and request logging. No paid plan or automatic upgrades.
+
+Run schema.sql once in D1, bind as DB, add secret IP_HMAC_SECRET, set COUNTING_SINCE to actual launch date, and add an hourly cron for the 48-hour cleanup. The homepage reads /stats once, not on a tight polling loop. Daily aggregates in `daily` retain counts and estimated participating network connections, not people. Public /stats exposes the cookie total only. Events/clients are purged after 48 hours. New installs default on, disclosed in the store; updating installs opt in once and stay off otherwise. Consent-off clears unsent events; no local history is uploaded.
+
+500 events per UTC day per IP is a coarse abuse cap, not an authenticity guarantee. Public clients cannot keep secrets; a non-browser can spoof Origin and invent events. NATs can undercount, IP changes overcount uniques, offline clients and caps undercount cookie events. Never present the result as audit-grade or as a literal number of browser cookies. Do not seed test events into the live total. Retries reuse IDs and expire before server dedup IDs.
+
+Live Worker: https://letemcookie-counter.chrisbest.workers.dev/stats
+D1 ID: 72302466-6ab3-494c-810e-45cb13021c69, binding DB. Secret is saved separately, never commit it. Cleanup uses a 47-hour event cutoff and 23-hour day cutoff with hourly cron so retention stays within 48 hours.
