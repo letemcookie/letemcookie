@@ -40,3 +40,7 @@ Plain JavaScript, Manifest V3. A content script at `document_start` with a debou
 New installs contribute to the homepage counter by default, as disclosed in the store. Existing installs get a one-time choice tab and contribute only if they agree. Turn counting off in extension Settings. Events contain only a random retry ID; the Cloudflare Worker hashes the network IP for daily approximate connection estimates and spam limits. No visited URLs, hostnames, cookie contents, or persistent install ID. See [privacy](https://letemcookie.com/privacy/) and [counter setup](counter/README.md).
 
 Tests: `node --test tests/*.test.mjs` and `python3 tests/schema_test.py`.
+
+The certificate is also available without installing: https://letemcookie.com/share/ . Sharing opens a draft or copies text; it never posts for you.
+
+Optional real-browser checks: with Google Chrome and Python's `websocket-client` available, run `python3 tests/browser_test.py`. This exercises removed, hidden, disabled and unchanged banners, plus all consent categories saved by both multi-step workflows. It uses only local fixture pages and never sends live counter events.
