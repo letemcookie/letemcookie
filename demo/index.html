@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A cookie banner, briefly.</title><style>
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#fffaf1;color:#2e1d10;font:14px/1.5 system-ui,sans-serif}h1{font:600 30px/1.15 Georgia,serif;margin:24px 0 8px}p{margin:8px 0}.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#755e48}.line{height:7px;border-radius:4px;background:#e9dcc8;margin:12px 0;width:80%}.line.short{width:55%}button{font:inherit;cursor:pointer;border:1px solid #a18055;background:#fffaf1;color:#2e1d10;padding:8px 12px;border-radius:5px}#eat{background:#2e1d10;color:#fffaf1;border-color:#2e1d10}#result{font-size:13px;min-height:20px}#again{font-size:12px;background:none;border:0;text-decoration:underline;padding:4px 0}#controls{position:absolute;top:18px;right:18px}a{color:inherit}@media(max-width:450px){h1{font-size:26px;max-width:170px}#controls{top:20px;right:14px}#eat{font-size:12px}}
+</style></head><body>
+<div class="label">Interactive demo</div><h1>A perfectly good website.</h1><p>With one annoying interruption.</p><div class="line"></div><div class="line short"></div>
+<div id="controls"><button id="eat" type="button">Eat this banner</button></div><p id="result" role="status"></p><button id="again" type="button" hidden>Run it again</button>
+<script>
+// Demo storage is separate from real site consent. No optional scripts are loaded.
+window.LetEmCookieConfig={storageKey:'letemcookie-demo-choice',message:'This demo uses zero optional cookies. Imagine it did.',privacyUrl:'/privacy/'};
+try{localStorage.removeItem('letemcookie-demo-choice')}catch(_){}
+</script><script src="/letemcookie.js?v=library-2"></script><script>
+const result=document.getElementById('result'),eat=document.getElementById('eat'),again=document.getElementById('again');
+const done=message=>{result.textContent=message;eat.hidden=true;again.hidden=false};
+LetEmCookie.onConsent((choice,record)=>done(record.source==='extension'?'Gone. That is the idea.':'Your choice. Saved for this demo.'));
+eat.addEventListener('click',()=>document.documentElement.setAttribute('data-letemcookie-extension','1'));
+again.addEventListener('click',()=>location.reload());
+</script></body></html>

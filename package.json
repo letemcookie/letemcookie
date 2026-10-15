@@ -1,0 +1,35 @@
+{
+  "name": "letemcookie",
+  "version": "0.2.0",
+  "description": "Small first-party cookie choices, with a way out of cookie banners.",
+  "main": "letemcookie.js",
+  "module": "index.mjs",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./letemcookie.js"
+    }
+  },
+  "files": [
+    "letemcookie.js",
+    "index.mjs",
+    "README.md",
+    "LIBRARY.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/letemcookie/letemcookie.git"
+  },
+  "homepage": "https://letemcookie.com",
+  "keywords": [
+    "cookie",
+    "consent",
+    "banner"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}

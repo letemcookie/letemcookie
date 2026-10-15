@@ -104,7 +104,7 @@
     chrome.runtime.sendMessage({ type: 'LEC_BANNER_GONE' }, () => { void chrome.runtime.lastError; });
   };
   const click = (el, cmp) => {
-    if (tried.has(el) || !visible(el)) return false;
+    if (tried.has(el) || !visible(el) || el.closest('[data-letemcookie-manual]')) return false;
     tried.add(el);
     try {
       el.click();
