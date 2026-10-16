@@ -1,146 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Let 'Em Cookie - Never see a cookie banner again.</title>
-<meta name="description" content="Never see a cookie banner again.">
-<meta property="og:title" content="Let 'Em Cookie">
-<meta property="og:description" content="Never see a cookie banner again.">
-<meta property="og:url" content="https://letemcookie.com">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍪</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Accept all cookies, forever. - Let 'Em Cookie</title>
 <style>
-  :root {
-    --cream: #f8eedd;
-    --choc: #2e1d10;
-    --choc-2: #5a4128;
-    --caramel: #b4661f;
-    --paper: #fffaf1;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--cream);
-    color: var(--choc);
-    font-family: 'Inter', -apple-system, sans-serif;
-    font-size: 17px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
-  h1, h2 { font-family: 'Fraunces', Georgia, serif; }
-  nav {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 22px 0; font-size: 14px;
-  }
-  nav .brand { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; color: var(--choc); text-decoration: none; }
-  nav .links a { color: var(--choc-2); text-decoration: none; margin-left: 22px; font-weight: 500; }
-  nav .links a:hover { color: var(--caramel); }
-  .hero { text-align: center; padding: 84px 0 72px; }
-  .hero h1 {
-    font-size: clamp(56px, 11vw, 96px); font-weight: 560; line-height: 0.98;
-    letter-spacing: -0.02em; font-variation-settings: 'opsz' 144;
-  }
-  .hero h1 em { font-style: italic; color: var(--caramel); }
-  .hero .sub { max-width: 540px; margin: 26px auto 0; font-size: 21px; color: var(--choc); }
-  .cta-row { margin-top: 38px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .btn {
-    display: inline-block; padding: 15px 30px; border-radius: 999px; font-weight: 600;
-    font-size: 16px; text-decoration: none; transition: transform .12s ease;
-  }
-  .btn:hover { transform: translateY(-2px); }
-  .btn-primary { background: var(--choc); color: var(--cream); }
-  .fineprint { margin-top: 18px; font-size: 13.5px; color: var(--choc-2); }
-  .secondary a { color: var(--choc-2); text-underline-offset: 3px; }
-  .census { margin-top:32px; font-size:15px; color:var(--choc-2); }
-  .census strong { font-variant-numeric:tabular-nums; color:var(--choc); }
-  .census small { display:block; font-size:11px; opacity:.8; margin-top:3px; }
-  .cookie {
-    width: 130px; height: 130px; margin: 0 auto 34px; position: relative;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 32% 30%, var(--choc) 0 9px, transparent 10px),
-      radial-gradient(circle at 62% 22%, var(--choc) 0 7px, transparent 8px),
-      radial-gradient(circle at 48% 55%, var(--choc) 0 10px, transparent 11px),
-      radial-gradient(circle at 24% 62%, var(--choc) 0 7px, transparent 8px),
-      radial-gradient(circle at 68% 66%, var(--choc) 0 8px, transparent 9px),
-      radial-gradient(circle at 42% 82%, var(--choc) 0 6px, transparent 7px),
-      #d9a75e;
-    box-shadow: inset -6px -8px 0 rgba(0,0,0,.08), 0 10px 26px rgba(46,29,16,.18);
-  }
-  .cookie::after {
-    content: ''; position: absolute; top: -6px; right: -10px;
-    width: 52px; height: 52px; background: var(--cream); border-radius: 50%;
-  }
-  section { padding: 64px 0; }
-  .rule { height: 1px; background: rgba(46,29,16,.12); }
-  .quote {
-    font-family: 'Fraunces', Georgia, serif; font-size: clamp(26px, 4.5vw, 38px);
-    line-height: 1.3; text-align: center; font-weight: 560;
-  }
-  .quote-note { text-align: center; margin-top: 18px; color: var(--choc-2); }
-  .dev { background: var(--choc); color: var(--cream); }
-  .dev h2 { color: var(--cream); font-size: clamp(28px, 5vw, 38px); font-weight: 560; margin-bottom: 14px; }
-  .dev p { color: #d9c7ae; max-width: 560px; }
-  .dev .code {
-    margin-top: 24px; background: #1d1209; border: 1px solid rgba(248,238,221,.14); border-radius: 8px;
-    padding: 18px 20px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 14px;
-    color: #e8d9be; overflow-x: auto;
-  }
-  footer { border-top: 1px solid rgba(46,29,16,.12); padding: 40px 0 54px; font-size: 14px; color: var(--choc-2); }
-  footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
-  footer a { color: var(--choc-2); }
-  footer .motto { font-family: 'Fraunces', serif; font-style: italic; }
+body{font:16px/1.5 system-ui,sans-serif;background:#f8eedd;color:#2e1d10;margin:0;padding:24px}
+main{max-width:680px;margin:10vh auto;text-align:center}
+p.big{font:600 clamp(28px,5.5vw,44px)/1.25 Georgia,serif;margin:0 0 40px}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+button,a.share{border:0;background:#2e1d10;color:#f8eedd;border-radius:999px;padding:14px 26px;cursor:pointer;font:600 16px system-ui,sans-serif}
+button.ghost,a.share.ghost{background:none;border:1.5px solid #2e1d10;color:#2e1d10}
+p.hint{margin:26px 0 0;color:#5a4128}
+p.hint:empty{display:none}
+.ctas{margin-top:30px}
+.ctas p{margin:12px 0}
+.ctas a{color:inherit}
+small{display:block;margin-top:44px;color:#755e48}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <nav>
-    <a class="brand" href="/">Let 'Em Cookie</a>
-    <div class="links">
-      <a href="https://github.com/letemcookie/letemcookie">GitHub</a>
-    </div>
-  </nav>
-
-  <header class="hero">
-    <div class="cookie" aria-hidden="true"></div>
-    <h1>Let 'Em <em>Cookie.</em></h1>
-    <p class="sub">Never see a cookie banner again.</p>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="/share/?v=20261016">Accept all cookies, forever</a>
-    </div>
-    <p class="fineprint secondary"><a href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">Get the extension</a><span aria-hidden="true"> · </span><a href="/docs/">Use the library</a></p>
-    <p class="census" aria-live="polite"><strong id="eaten">...</strong> cookies eaten.<small>One banner gone. One cookie eaten.</small></p>
-  </header>
+<main>
+<p class="big">I hereby accept all cookies, forever. No need to ask me ever again. letemcookie.com</p>
+<div class="row">
+<button id="copy">Copy</button>
+<a id="x" class="share ghost" style="text-decoration:none;display:inline-block" href="https://twitter.com/intent/tweet?text=I%20hereby%20accept%20all%20cookies%2C%20forever.%20No%20need%20to%20ask%20me%20ever%20again.%20letemcookie.com%20%40chrisbest" target="_blank" rel="noopener noreferrer">Share on X</a>
+<a id="substack" class="share ghost" style="text-decoration:none;display:inline-block" href="https://substack.com/?action=compose&amp;message=I%20hereby%20accept%20all%20cookies%2C%20forever.%20No%20need%20to%20ask%20me%20ever%20again.%20letemcookie.com%20%40cb" target="_blank" rel="noopener noreferrer">Share as Substack note</a>
 </div>
+<p class="hint" id="hint" role="status"></p>
 
-<div class="rule"></div>
-
-<div class="wrap">
-  <section>
-    <p class="quote">"I hereby accept all cookies, forever. No need to ask me ever again."</p>
-    <p class="quote-note">After the first banner, the extension hands you this. Copy it, post it, or don't.</p>
-    <p style="text-align:center;margin-top:20px"><a href="/share/?v=20261016" style="color:var(--choc-2);font-size:14px">Take the certificate</a></p>
-  </section>
+<div class="ctas">
+<p>Never see a cookie banner again: <a href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">get the extension</a></p>
+<p>Developers, never worry about cookies: <a href="/docs/">get the library</a></p>
 </div>
-
-<div class="wrap">
-  <section>
-    <p class="quote" style="font-size: clamp(19px, 3vw, 24px);">Some banners get through. Accept-all is the point. This is not a privacy tool.</p>
-  </section>
-</div>
-
-<footer>
-  <div class="wrap">
-    <div class="row">
-      <div class="motto">This site sets no cookies. It simply accepts yours.</div>
-      <div>By Chris Best &nbsp;·&nbsp; <a href="https://github.com/letemcookie/letemcookie">GitHub</a> &nbsp;·&nbsp; © 2026</div>
-    </div>
-  </div>
-</footer>
-<script src="counter.js"></script>
+</main>
+<script src="/share/share.js?v=home-20261016"></script>
 </body>
 </html>

@@ -14,13 +14,14 @@ for (const path of ['extension/share.js','share/share.js']) {
  test(path+': Substack copy starts in tap without canceling navigation',async()=>{const c=setup();assert.equal(c.handlers.substack(),undefined);assert.deepEqual(c.copies,[expected+' @cb']);await new Promise(r=>setImmediate(r));assert.match(c.hint.textContent,/Copied/);});
  test(path+': clipboard failure is not claimed as success',async()=>{const c=setup(true);await c.handlers.copy();assert.match(c.hint.textContent,/Select the text/);});
 }
-for(const path of ['share/index.html','extension/share.html']) {
+for(const path of ['index.html','share/index.html','extension/share.html']) {
  test(path+': native current Substack compose route and channel handle',()=>{
  const html=fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
  const anchor=html.match(/<a id="substack"[^>]+>/)[0];
  const url=new URL(anchor.match(/href="([^"]+)"/)[1].replaceAll('&amp;','&'));
  assert.equal(url.origin,'https://substack.com');assert.equal(url.pathname,'/');assert.equal(url.searchParams.get('action'),'compose');assert.equal(url.searchParams.get('message'),expected+' @cb');assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noopener noreferrer"/);
- assert.match(html,/Substack opens empty\? Copy, then paste\./);
+ if(path==='extension/share.html') assert.match(html,/Substack opens empty\? Copy, then paste\./);
+ else {assert.doesNotMatch(html,/Substack opens empty/);assert.match(html, /id="hint" role="status"><\/p>/);assert.match(html,/Never see a cookie banner again:/);assert.match(html,/Developers, never worry about cookies:/);}
  });
  test(path+': X native intent and channel handle',()=>{
  const html=fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');const anchor=html.match(/<a id="x"[^>]+>/)[0];const url=new URL(anchor.match(/href="([^"]+)"/)[1]);
