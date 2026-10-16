@@ -54,10 +54,10 @@
   .btn:hover { transform: translateY(-2px); }
   .btn-primary { background: var(--choc); color: var(--cream); }
   .fineprint { margin-top: 18px; font-size: 13.5px; color: var(--choc-2); }
+  .secondary a { color: var(--choc-2); text-underline-offset: 3px; }
   .census { margin-top:32px; font-size:15px; color:var(--choc-2); }
   .census strong { font-variant-numeric:tabular-nums; color:var(--choc); }
   .census small { display:block; font-size:11px; opacity:.8; margin-top:3px; }
-  .demo-card{max-width:640px;margin:36px auto 0;text-align:left;border:1px solid #bfa888;border-radius:12px;overflow:hidden;background:#fffaf1;box-shadow:0 12px 30px #2e1d1010}.demo-card iframe{display:block;width:100%;height:390px;border:0}.demo-caption{text-align:center;font-size:12px;color:var(--choc-2);margin:10px 0 0}.docs-link{display:inline-block;margin-top:20px;color:var(--cream)}
   .cookie {
     width: 130px; height: 130px; margin: 0 auto 34px; position: relative;
     border-radius: 50%;
@@ -110,11 +110,9 @@
     <h1>Let 'Em <em>Cookie.</em></h1>
     <p class="sub">Never see a cookie banner again.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">Get the extension</a>
+      <a class="btn btn-primary" href="/share/?v=20261016">Accept all cookies, forever</a>
     </div>
-    <p class="fineprint">Free. Chrome, for now. Accepts all, so you do not have to.</p>
-    <div class="demo-card"><iframe src="/demo/" title="Interactive cookie banner demo" loading="lazy"></iframe></div>
-    <p class="demo-caption">A demo. No tracking. Your real banners are next.</p>
+    <p class="fineprint secondary"><a href="https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig">Get the extension</a><span aria-hidden="true"> · </span><a href="/docs/">Use the library</a></p>
     <p class="census" aria-live="polite"><strong id="eaten">...</strong> cookies eaten.<small>One banner gone. One cookie eaten.</small></p>
   </header>
 </div>
@@ -125,19 +123,9 @@
   <section>
     <p class="quote">"I hereby accept all cookies, forever. No need to ask me ever again."</p>
     <p class="quote-note">After the first banner, the extension hands you this. Copy it, post it, or don't.</p>
-    <p style="text-align:center;margin-top:20px"><a href="/share/" style="color:var(--choc-2);font-size:14px">Take the certificate</a></p>
+    <p style="text-align:center;margin-top:20px"><a href="/share/?v=20261016" style="color:var(--choc-2);font-size:14px">Take the certificate</a></p>
   </section>
 </div>
-
-<section class="dev">
-  <div class="wrap">
-    <h2>Shipping a site? Take the library.</h2>
-    <p>Accept all. Necessary only. Never ask me again.</p>
-    <p style="margin-top:12px">A small first-party banner. Two equal choices, one quiet link to the extension. Saves the choice locally. Stays out of the way for extension users.</p>
-    <div class="code">&lt;script src="https://letemcookie.com/letemcookie.js" defer&gt;&lt;/script&gt;</div>
-    <a class="docs-link" href="/docs/">Add it to your site →</a>
-  </div>
-</section>
 
 <div class="wrap">
   <section>
