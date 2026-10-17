@@ -2,6 +2,13 @@
 let update = Promise.resolve();
 importScripts('counter.js');
 const share = chrome.runtime.getURL('share.html');
+const successCue = async (tabId) => {
+  await chrome.action.setBadgeBackgroundColor({ tabId, color: '#2e7d32' });
+  await chrome.action.setBadgeText({ tabId, text: '✓' });
+};
+const clearSuccessCue = async (tabId) => {
+  await chrome.action.setBadgeText({ tabId, text: '' });
+};
 const reportUrl = (host, selector) =>
   'https://github.com/letemcookie/letemcookie/issues/new?title=' +
   encodeURIComponent(`Missed banner on ${host}`) +
@@ -9,8 +16,16 @@ const reportUrl = (host, selector) =>
     `Site: ${host}\nButton I picked: ${selector}\nExtension: ${chrome.runtime.getManifest().version}\n\nWhat happened:\n`);
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!sender.tab?.id || !/^https?:/.test(sender.url || '')) return;
+  if (msg?.type === 'LEC_PAGE_START') {
+    update = update.then(() => clearSuccessCue(sender.tab.id)).catch(() => {});
+    return;
+  }
   if (msg?.type === 'LEC_BANNER_GONE') {
-    update = update.then(recordCookie).then(flushCounter).catch(() => {});
+    update = update.then(async () => {
+      await successCue(sender.tab.id);
+      await recordCookie();
+      await flushCounter();
+    }).catch(() => {});
     return;
   }
   if (msg?.type !== 'LEC_ACCEPT_ATTEMPT' && msg?.type !== 'LEC_PICKED') return;

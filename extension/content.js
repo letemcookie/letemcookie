@@ -4,10 +4,13 @@
   const mark = () => { if (document.documentElement && !document.documentElement.hasAttribute('data-letemcookie-extension')) document.documentElement.setAttribute('data-letemcookie-extension', '1'); };
   mark();
   if (!document.documentElement) document.addEventListener('DOMContentLoaded', mark, { once: true });
+  // A successful cue belongs to one page only; clear any prior one on arrival.
+  chrome.runtime.sendMessage({ type: 'LEC_PAGE_START' }, () => { void chrome.runtime.lastError; });
 
   const known = [
     ['OneTrust', '#onetrust-accept-btn-handler'],
     ['Cookiebot', '#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll'],
+    ['Europa Webtools', '#cookie-consent-banner a[href="#accept"], .wt-cck--banner a[href="#accept"], .wt-cck--actions a[href="#accept"]'],
     ['Quantcast', '.qc-cmp2-summary-buttons button[mode="primary"], .qc-cmp2-footer button[mode="primary"], button[aria-label="Accept All"]'],
     ['Didomi', '#didomi-notice-agree-button, .didomi-continue-with-agreeing, button[data-testid="didomi-notice-agree-button"]'],
     ['TrustArc', '#truste-consent-button, .trustarc-banner-accept-all'],

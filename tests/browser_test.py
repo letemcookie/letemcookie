@@ -24,6 +24,14 @@ try:
   got=js("events.filter(x=>x.type==='LEC_BANNER_GONE').length")
   assert got==want,(kind,got,want)
   print('PASS banner',kind)
+ # Europa Webtools uses links rather than buttons.
+ html='<div id="cookie-consent-banner" class="wt-cck--banner"><p>This site uses cookies.</p><a href="#accept" class="wt-cck--actions-button" onclick="document.getElementById(\'cookie-consent-banner\').remove()">Accept all cookies</a></div>'
+ call('Page.navigate',{'url':'data:text/html,'+urllib.parse.quote(html)});time.sleep(.15)
+ js('window.events=[];window.chrome={runtime:{lastError:null,sendMessage:(x,cb)=>{events.push(x);if(cb)cb()}}};')
+ js(source);time.sleep(2.3)
+ assert js("events.filter(x=>x.type==='LEC_ACCEPT_ATTEMPT'&&x.cmp==='Europa Webtools').length")==1
+ assert js("events.filter(x=>x.type==='LEC_BANNER_GONE').length")==1
+ print('PASS banner Europa Webtools link')
  # Translated accept-all workflows must enable every category before save.
  fixtures=[]
  cats=['functional','statistic','marketing']
