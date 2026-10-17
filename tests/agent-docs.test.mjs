@@ -14,8 +14,11 @@ test('machine-readable docs are current and have a discoverable skill',()=>{
  assert.doesNotMatch(read('LIBRARY.md'),/homepage uses a labeled iframe/);
 });
 test('agent discovery work preserves the owner-selected homepage',()=>{
- assert.equal(read('index.html'),read('share/index.html'));
- assert.doesNotMatch(read('index.html'),/iframe|llms|SKILL|cookies eaten/);
+ assert.doesNotMatch(read('index.html'),/iframe|llms|SKILL/);
+ assert.match(read('index.html'),/id="eaten"/);
+ assert.match(read('index.html'),/cookies eaten/);
+ assert.match(read('index.html'),/src="\/counter.js"/);
+ assert.doesNotMatch(read('share/index.html'),/id="eaten"/);
 });
 test('Context7 index targets consumer docs rather than extension internals',()=>{
  const config=JSON.parse(read('context7.json'));
