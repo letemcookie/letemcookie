@@ -1,0 +1,51 @@
+// Development-only. Install Playwright separately; not a library dependency.
+const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const {spawn} = require('node:child_process');
+const assert = require('node:assert/strict');
+(async () => {
+  const server = spawn('python3', ['-m', 'http.server', '8792', '--bind', '127.0.0.1', '--directory', require('node:path').resolve(__dirname, '..')], {stdio: 'ignore'});
+  let browser;
+  try {
+    browser = await chromium.launch({executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome', args: ['--no-sandbox']});
+    const page = await browser.newPage();
+    const external = [];
+    page.on('request', request => { if (new URL(request.url()).hostname !== '127.0.0.1') external.push(request.url()); });
+    const url = 'http://127.0.0.1:8792/examples/consent-gating/';
+    await page.goto(url);
+    await page.locator('[data-letemcookie-banner]').waitFor();
+    const state = () => page.evaluate(() => ({running: demoService.running, starts: demoService.starts, stops: demoService.stops, value: localStorage.getItem('letemcookie-sample-service')}));
+    assert.equal((await state()).running, false);
+    assert.equal((await state()).value, null);
+    await page.getByRole('button', {name: 'Necessary only', exact: true}).click();
+    assert.equal((await state()).running, false);
+    await page.reload();
+    await page.locator('#state').filter({hasText:'Service: off'}).waitFor();
+    assert.equal(await page.locator('[data-letemcookie-banner]').count(),0);
+    await page.locator('#choices').click();
+    await page.getByRole('button', {name: 'Allow optional cookies', exact: true}).click();
+    assert.equal((await state()).running, true);
+    assert.equal((await state()).starts, 1);
+    await page.locator('#choices').click();
+    await page.getByRole('button', {name: 'Allow optional cookies', exact: true}).click();
+    assert.equal((await state()).starts, 1);
+    await page.reload();
+    await page.locator('#state').filter({hasText:'Service: on'}).waitFor();
+    assert.equal((await state()).starts, 1);
+    await page.locator('#choices').click();
+    await page.getByRole('button', {name: 'Necessary only', exact: true}).click();
+    assert.equal((await state()).running, false);
+    assert.equal((await state()).value, null);
+    assert.equal((await state()).stops, 1);
+    await page.evaluate(() => document.documentElement.setAttribute('data-letemcookie-extension', '1'));
+    assert.equal(await page.evaluate(() => LetEmCookie.consent), 'necessary');
+    await page.reload();
+    await page.locator('#state').filter({hasText:'Service: off'}).waitFor();
+    assert.equal((await state()).value, null);
+    assert.deepEqual(external, []);
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('#choices').click();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    await page.screenshot({path: process.env.SCREENSHOT_PATH || '/tmp/letemcookie-gating-example.png', fullPage:true});
+    console.log('PASS no pre-consent startup, reject/reload, idempotent accept, accepted reload, withdrawal stop/data removal, saved rejection precedence, no external requests, mobile width');
+  } finally { await browser?.close(); server.kill(); }
+})().catch(error => { console.error(error); process.exit(1); });

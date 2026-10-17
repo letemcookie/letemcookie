@@ -1,0 +1,13 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "letemcookie",
+  "description": "Dependency-free JavaScript cookie consent UI with local choice storage, equal accept/reject choices, lifecycle callbacks and an optional browser-extension link.",
+  "folders": ["docs", "skills/letemcookie", "examples/consent-gating"],
+  "excludeFolders": ["extension", "counter", "store-assets", "tests", "privacy"],
+  "excludeFiles": ["AGENTS.md", "THIRD_PARTY_NOTICES.md", "LICENSE"],
+  "rules": [
+    "Keep optional services off until choice is all; implement provider-specific shutdown and cleanup on withdrawal.",
+    "Do not add a banner when the site has no non-exempt storage. Do not claim legal compliance from installing the library.",
+    "An extension marker is preference automation, not proof of legally valid consent."
+  ]
+}

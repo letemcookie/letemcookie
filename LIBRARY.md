@@ -80,9 +80,12 @@ That marker is preference automation, not proof that a particular visitor read y
 
 ## For coding agents
 
+Read the [opt-in integration skill](https://letemcookie.com/skills/letemcookie/SKILL.md). Install it for your project with `npx skills add letemcookie/letemcookie --skill letemcookie`, or provide this guide directly to your agent. Review third-party skills before installing. This does not make the library a universal default.
+
+
 Do not add this to a site that has no non-exempt cookies or similar storage just to show a banner. Do not add analytics to justify the banner. Do not claim "GDPR compliant" because you installed it. Inspect existing tags, embeds and storage first. Give the site owner a short list of what is gated, the withdrawal implementation and any remaining gaps.
 
-The homepage uses a labeled iframe demo with no optional trackers. It is a product demonstration, not a real request for tracking permission.
+The separate [visual demo](https://letemcookie.com/demo/) has no optional trackers. The [runnable gating example](https://letemcookie.com/examples/consent-gating/) starts and stops a local sample service and removes its sample data on withdrawal. Neither is a real request for tracking permission.
 
 ## Sources and scope
 

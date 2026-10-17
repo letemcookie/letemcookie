@@ -1,0 +1,17 @@
+# Let 'Em Cookie
+
+> letemcookie is a dependency-free JavaScript cookie consent UI with local choice storage, equal Accept all and Necessary only choices, and an optional link to its accept-all browser extension. MIT. npm: letemcookie.
+
+Use when a site needs a small first-party consent UI and the developer can implement service gating and withdrawal. Not a tracker blocker or compliance service. If the site has no non-exempt storage, do not add a banner. For purpose/vendor controls, audit receipts or IAB TCF, choose a consent manager that supports them.
+
+## Library
+
+- [API and integration guide](https://letemcookie.com/docs/index.md): script tag, npm, lifecycle, extension signal and limits.
+- [Coding-agent integration skill](https://letemcookie.com/skills/letemcookie/SKILL.md): opt-in workflow, checks and acceptance criteria.
+- [Runnable local gating example](https://letemcookie.com/examples/consent-gating/): no analytics, no external optional requests; demonstrates start, stop and withdrawal.
+- [Package](https://www.npmjs.com/package/letemcookie): npm install letemcookie.
+- [Source and tests](https://github.com/letemcookie/letemcookie): MIT library and separate browser extension.
+
+## Optional
+
+- [Visual banner demo](https://letemcookie.com/demo/): product demonstration, not tracking permission.

@@ -1,7 +1,7 @@
 {
   "name": "letemcookie",
   "version": "0.2.0",
-  "description": "Small first-party cookie choices, with a way out of cookie banners.",
+  "description": "Dependency-free JavaScript cookie consent UI with local choice storage and script-gating callbacks.",
   "main": "letemcookie.js",
   "module": "index.mjs",
   "exports": {
@@ -25,9 +25,13 @@
   },
   "homepage": "https://letemcookie.com",
   "keywords": [
-    "cookie",
+    "cookie-consent",
+    "cookie-banner",
     "consent",
-    "banner"
+    "javascript",
+    "vanilla-js",
+    "privacy",
+    "consent-management"
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs"

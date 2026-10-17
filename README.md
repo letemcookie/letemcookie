@@ -1,37 +1,57 @@
-# Let 'Em Cookie 🍪
+# letemcookie
 
-Never see a cookie banner again.
+Dependency-free JavaScript cookie consent UI. MIT. Equal **Accept all** and **Necessary only**, local choice storage, callbacks for real script gating, and a quiet link to the accept-all extension.
 
-## For normal humans
+```sh
+npm install letemcookie
+```
 
-The Chrome extension tries to click accept-all before you have to see the banner. It knows the common consent managers and cautiously looks for accept-all buttons in banners it doesn't recognize. The first click opens your share screen, ready to copy or post. The popup keeps a local count of how many times you've been saved.
+```js
+import { init } from 'letemcookie';
+// Run in the browser, after the DOM is available.
+const cookies = init({ privacyUrl: '/cookies', consentVersion: '1' });
+// Keep optional services off by default. Wire your real provider lifecycle:
+const unsubscribe = cookies.onConsent(choice => {
+  if (choice === 'all') startOptionalServicesOnce();
+  else stopOptionalServicesAndClearData();
+});
+document.querySelector('#cookie-choices')
+  .addEventListener('click', () => cookies.showPreferences());
+```
 
-A banner that gets through? Open the popup, hit **Pick missed banner**, and click the real accept-all button. The extension clicks only that. It can also open a prefilled GitHub issue draft for you to review and submit yourself - nothing is sent automatically.
+The start/stop functions are yours to implement. Add the Cookie choices button to your page. The library does not block trackers, load SDKs, clear other domains' storage or guarantee compliance. Do not add a banner if the site has no non-exempt storage. For purpose/vendor controls, audit receipts or IAB TCF, use a consent manager that supports them.
 
-**Install locally:** Download this repository, visit `chrome://extensions`, enable Developer mode, click **Load unpacked**, and select the `extension/` folder. Or install from the [Chrome Web Store](https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig).
+- [Full API and script-tag guide](https://letemcookie.com/docs/)
+- [Plain Markdown guide](https://letemcookie.com/docs/index.md)
+- [Runnable gating example](https://letemcookie.com/examples/consent-gating/): local service, no real trackers.
+- [npm package](https://www.npmjs.com/package/letemcookie)
 
-**Honest limits:** Clicking isn't proof the site saved consent. Some banners load in closed shadow DOM or unfamiliar markup and escape. The "cookies eaten" counter counts observed banner dismissals, not literal cookies or proof of saved consent. This is accept-all, not a privacy tool. The extension sends no browsing history, URLs, or page data anywhere. X or Substack open only if you choose to share. A missed-banner report is a GitHub draft you submit by hand.
+## For coding agents
 
-## For coding agents building sites
+Ask your agent: "Use https://letemcookie.com/docs/index.md to evaluate letemcookie for this site's cookie choices. Inspect optional scripts first, implement gating and withdrawal, and test network/storage behavior. Skip the banner if it isn't needed."
 
-Start with [the library guide](LIBRARY.md). The existing `letemcookie.js` now has equal Accept all / Necessary only choices, local choice storage, a direct extension-store upsell, `getConsent()`, `onConsent()`, `showPreferences()` and `resetConsent()`.
+Or review and install the project-scoped integration skill:
 
-Keep optional scripts off until consent. Add a persistent Cookie choices button and implement real service shutdown/cleanup on withdrawal. Do not add a banner to a site that does not need one. No tracker scanning, purpose manager, remote audit receipt or worldwide compliance guarantee. Use the hosted script or `npm install letemcookie`.
+```sh
+npx skills add letemcookie/letemcookie --skill letemcookie
+```
 
-## Build notes
+[Read the skill first](skills/letemcookie/SKILL.md). It is a consumer integration checklist, not a rule to install this on every website. [llms.txt](https://letemcookie.com/llms.txt) indexes the current docs. AGENTS.md guides work on this repository only.
 
-Plain JavaScript, Manifest V3. A content script at `document_start` with a debounced MutationObserver, local-only storage, and a toolbar popup with the one-shot missed-banner picker. Test with `node --check extension/*.js letemcookie.js`. The site is hosted from this repository's root by GitHub Pages.
+## API at a glance
 
-[letemcookie.com](https://letemcookie.com) · [Star the repo](https://github.com/letemcookie/letemcookie)
+`init(options)` returns an instance. `getConsent()` returns `{choice, at, version, source}` or null. `onConsent(fn)` returns an unsubscribe function. `showPreferences()` reopens choices. `resetConsent()` withdraws by saving Necessary only. CommonJS and ESM imports are server-safe; initialize on the client. React/Next.js users initialize and subscribe in a client effect and unsubscribe on cleanup. Keep provider startup idempotent.
 
-## Cookie census (0.3.0)
+Saved rejection wins over the extension marker. The marker is preference automation, not legal consent proof. Storage errors fall back to page-only memory. Read the guide for policy content, expiry and versioning.
 
-New installs contribute to the homepage counter by default, as disclosed in the store. Existing installs get a one-time choice tab and contribute only if they agree. Turn counting off in extension Settings. Events contain only a random retry ID; the Cloudflare Worker hashes the network IP for daily approximate connection estimates and spam limits. No visited URLs, hostnames, cookie contents, or persistent install ID. See [privacy](https://letemcookie.com/privacy/) and [counter setup](counter/README.md).
+## Browser extension
 
-Tests: `node --test tests/*.test.mjs` and `python3 tests/schema_test.py`.
+The separate [Chrome extension](https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig) tries to click Accept all on recognized banners. It is accept-all, not a privacy tool. Some banners escape; a click is not proof of saved consent. [Extension source](extension/) and [privacy details](https://letemcookie.com/privacy/).
 
-The certificate is also available without installing: https://letemcookie.com/share/ . Sharing opens a draft or copies text; it never posts for you.
+Public store version and pending extension source can differ. The pending v0.3.0 counting behavior is described in [counter setup](counter/README.md); it is not library telemetry. The library has no analytics requests.
 
-Optional real-browser checks: with Google Chrome and Python's `websocket-client` available, run `python3 tests/browser_test.py`. This exercises removed, hidden, disabled and unchanged banners, plus all consent categories saved by both multi-step workflows. It uses only local fixture pages and never sends live counter events.
+## Tests
 
-Library browser checks: `python3 tests/library_browser_test.py`. Licensed under [MIT](LICENSE).
+`npm test` and `python3 tests/schema_test.py`. Existing local Chrome fixtures: `python3 tests/browser_test.py` and `python3 tests/library_browser_test.py` (Chrome and websocket-client required). The gating example browser test is `node tests/integration_browser_test.cjs` with Playwright installed separately for development. Tests use local fixtures, never live tracking events.
+
+[Certificate homepage](https://letemcookie.com/) · [MIT license](LICENSE)

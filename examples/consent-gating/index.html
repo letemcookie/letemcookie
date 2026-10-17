@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consent gating example - letemcookie</title><style>body{font:17px/1.6 system-ui,sans-serif;max-width:680px;margin:40px auto;padding:24px;color:#2e1d10;background:#f8eedd}button{padding:10px 16px;font:inherit}a{color:inherit}code{overflow-wrap:anywhere}</style></head><body>
+<h1>Consent gates the service.</h1>
+<p>A local example, not a tracker. Accept all starts a local sample service. Necessary only and withdrawal stop it and remove its sample storage. No analytics or external optional requests.</p>
+<p id="state" role="status">Service: off</p>
+<button id="choices" type="button">Cookie choices</button>
+<p><a href="/docs/">Library guide</a> · <a href="/examples/consent-gating/setup.js">Read the integration</a></p>
+<script>window.LetEmCookieConfig={message:'This demo can run a local sample service. No data leaves this page. Its sample value is removed when you withdraw.',privacyUrl:'/examples/consent-gating/policy.html',consentVersion:'demo-1',storageKey:'letemcookie-gating-demo'};</script>
+<script src="/letemcookie.js" defer></script><script src="setup.js" defer></script>
+</body></html>
