@@ -1,6 +1,6 @@
 {
   "name": "letemcookie",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Dependency-free JavaScript cookie consent UI with local choice storage and script-gating callbacks.",
   "main": "letemcookie.js",
   "module": "index.mjs",

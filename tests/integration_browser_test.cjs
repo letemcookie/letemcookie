@@ -1,4 +1,6 @@
-// Development-only. Install Playwright separately; not a library dependency.
+// Reference Playwright integration fixture. Development-only; install Playwright separately.
+// Copy the checks into your app and replace the example URL, provider state and labels.
+// Stable selector contract: [data-letemcookie-banner] for the region; accessible role/name for actions.
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const {spawn} = require('node:child_process');
 const assert = require('node:assert/strict');

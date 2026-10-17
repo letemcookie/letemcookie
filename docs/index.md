@@ -52,11 +52,65 @@ const cookies = init({ privacyUrl: '/cookies', consentVersion: '1' });
 
 CommonJS uses `const { init } = require('letemcookie')`. Importing does not create a banner. Call `init()` in the browser once. Server imports are safe; calling it without a browser returns `null`.
 
+The bare npm `import` needs your app's bundler or framework (for example Vite, Next.js or webpack). For a no-build static page, use the script install or vendor the file; a browser cannot resolve the package name by itself.
+
+## Provider lifecycle
+
+Keep provider loading behind your own adapter. This pattern is copyable; replace `/optional-service.js`, `module.start()` and `started.stop()` with the real provider SDK, shutdown, withdrawal and cleanup calls:
+
+```js
+let provider = null;
+let starting = null;
+let consentWanted = false;
+
+async function startOptionalServicesOnce() {
+  consentWanted = true;
+  if (provider) return provider;
+  if (starting) return starting;
+  starting = import('/optional-service.js')
+    .then(async module => {
+      const started = await module.start();
+      if (!consentWanted) {
+        await started.stop();
+        return null;
+      }
+      provider = started;
+      return provider;
+    })
+    .finally(() => {
+      starting = null;
+    });
+  return starting;
+}
+
+async function stopOptionalServicesAndClearData() {
+  consentWanted = false;
+  if (starting) await starting.catch(() => null);
+  const current = provider;
+  provider = null;
+  if (current) await current.stop();
+}
+
+cookies.onConsent(choice => {
+  const lifecycle = choice === 'all'
+    ? startOptionalServicesOnce()
+    : stopOptionalServicesAndClearData();
+  Promise.resolve(lifecycle).catch(error => {
+    // Report through your own error channel.
+    console.error('Optional service lifecycle failed', error);
+  });
+});
+```
+
+Do not count removing a script element as shutdown. Stop timers and listeners, use the provider's opt-out/delete APIs, and remove storage the provider owns. Catch and report provider errors in your adapter, including async failures; the library does not report provider failures.
+
+[Copy the adapter pattern](https://letemcookie.com/examples/consent-gating/provider-adapter.js) and run the [reference Playwright integration test](https://github.com/letemcookie/letemcookie/blob/main/tests/integration_browser_test.cjs). The test uses `[data-letemcookie-banner]` for the banner and accessible role/name selectors for the Accept all and Necessary only buttons; if labels are customized, test with the configured labels.
+
 ## API
 
 - `init(options)` in npm, or `window.LetEmCookie` with a script tag. Repeated init calls return the same instance; configure it before the first call.
 - `getConsent()` returns a copy of `{choice, at, version, source}`, or `null`. `choice` is `all` or `necessary`; `source` is `user` or `extension`. `at` is an ISO timestamp. `consent` returns just the choice.
-- `onConsent(fn)` calls `fn(choice, record)` immediately for a saved choice and whenever it changes. Returns an unsubscribe function. Unknown consent does not run the initial callback; treat it as no optional consent. Cross-tab removal notifies with `null`.
+- `onConsent(fn)` calls `fn(choice, record)` immediately for a saved choice and whenever it changes. Returns an unsubscribe function. Unknown consent does not run the initial callback; treat it as no optional consent. Cross-tab removal notifies with `null`. Synchronous callback errors are caught so one handler does not break others; catch and report provider lifecycle errors inside your adapter, including async failures.
 - `showPreferences()` opens the choices again and moves keyboard focus to Necessary only. The visitor can withdraw consent in one click. Add a persistent Cookie choices button to your site.
 - `resetConsent()` immediately saves Necessary only and notifies callbacks. It is a withdrawal, not a storage wipe that would make the extension accept again.
 
@@ -76,11 +130,11 @@ That marker is preference automation, not proof that a particular visitor read y
 2. Describe your actual purposes, providers and retention before consent, with a working policy link. If you need separate purpose/vendor choices, use a consent manager that supports them.
 3. Offer Necessary only as easily as Accept all. Keep Cookie choices visible after dismissal.
 4. Make withdrawal work for your real services: stop processing, clear relevant data, and tell providers as needed. This library cannot undo arbitrary JavaScript or remove another domain's storage.
-5. Test acceptance, rejection, withdrawal, reloads, blocked storage, and extension users in the browsers your visitors use.
+5. Test acceptance, rejection, withdrawal, reloads, blocked storage, and extension users in the browsers your visitors use. Start from the [reference Playwright integration test](https://github.com/letemcookie/letemcookie/blob/main/tests/integration_browser_test.cjs).
 
 ## For coding agents
 
-Read the [opt-in integration skill](https://letemcookie.com/skills/letemcookie/SKILL.md). Install it for your project with `npx skills add letemcookie/letemcookie --skill letemcookie`, or provide this guide directly to your agent. Review third-party skills before installing. This does not make the library a universal default.
+Read the [opt-in integration skill](https://letemcookie.com/skills/letemcookie/SKILL.md), [copyable provider adapter](https://letemcookie.com/examples/consent-gating/provider-adapter.js), and [reference Playwright integration test](https://github.com/letemcookie/letemcookie/blob/main/tests/integration_browser_test.cjs). Install the skill for your project with `npx skills add letemcookie/letemcookie --skill letemcookie`, or provide this guide directly to your agent. Review third-party skills before installing. This does not make the library a universal default.
 
 
 Do not add this to a site that has no non-exempt cookies or similar storage just to show a banner. Do not add analytics to justify the banner. Do not claim "GDPR compliant" because you installed it. Inspect existing tags, embeds and storage first. Give the site owner a short list of what is gated, the withdrawal implementation and any remaining gaps.
