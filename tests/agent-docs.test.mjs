@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const read = path => fs.readFileSync(new URL('../'+path, import.meta.url),'utf8');
 test('machine-readable docs are current and have a discoverable skill',()=>{
  assert.equal(read('docs/index.md'),read('LIBRARY.md'));
+ assert(fs.existsSync(new URL('../.nojekyll',import.meta.url)), 'Pages must serve SKILL.md frontmatter verbatim');
  assert.match(read('llms.txt'),/^# Let 'Em Cookie/);
  assert.match(read('llms.txt'),/https:\/\/letemcookie.com\/docs\/index.md/);
  assert.match(read('skills/letemcookie/SKILL.md'),/^---\nname: letemcookie\ndescription:/);
