@@ -1,9 +1,11 @@
 // No third-party runtime dependencies. Never log requests, IPs or payloads.
 const EXTENSION = 'chrome-extension://gcngilgdbfbghagejgjependcpbckdig';
 const ORIGINS = new Set(['https://letemcookie.com', 'https://www.letemcookie.com', EXTENSION]);
+const SAFARI_EXTENSION = /^safari-web-extension:\/\/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+const allowedOrigin = (origin) => ORIGINS.has(origin) || SAFARI_EXTENSION.test(origin);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const headers = (origin) => ({
-  'Access-Control-Allow-Origin': ORIGINS.has(origin) ? origin : 'https://letemcookie.com',
+  'Access-Control-Allow-Origin': allowedOrigin(origin) ? origin : 'https://letemcookie.com',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Max-Age': '86400',
@@ -28,7 +30,7 @@ export default {
       }
       if (url.pathname !== '/eat' || request.method !== 'POST') return response({error:'not found'},404);
       // This is a speed bump, not authentication: a public extension cannot keep a secret.
-      if (origin !== EXTENSION) return response({error:'origin'},403);
+      if (!allowedOrigin(origin)) return response({error:'origin'},403);
       if (!env.IP_HMAC_SECRET) return response({error:'not ready'},503);
       if (Number(request.headers.get('Content-Length') || 0)>256) return response({error:'too large'},413);
       const raw = await request.text();

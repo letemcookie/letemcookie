@@ -26,3 +26,13 @@ test('valid event writes only UUID, day, HMAC, time',async()=>{
 test('database failure is retryable, not a fake count',async()=>{
  const r=await worker.fetch(new Request(base+'/stats'),{DB:{prepare:()=>{throw Error()}}}); assert.equal(r.status,503);
 });
+const safari='safari-web-extension://123e4567-e89b-42d3-a456-426614174000';
+test('Safari web extension origin is accepted and reflected; malformed Safari origin is rejected',async()=>{
+ const o=await worker.fetch(new Request(base+'/eat',{method:'OPTIONS',headers:{Origin:safari}}),{});
+ assert.equal(o.status,204);assert.equal(o.headers.get('Access-Control-Allow-Origin'),safari);
+ let hit=false;const env={IP_HMAC_SECRET:'secret',DB:{prepare:()=>({bind:()=>({run:async()=>{hit=true}})})}};
+ const r=await worker.fetch(new Request(base+'/eat',{method:'POST',headers:{Origin:safari,'CF-Connecting-IP':'192.0.2.1'},body:JSON.stringify({event:id})}),env);
+ assert.equal(r.status,200);assert.ok(hit);assert.equal(r.headers.get('Access-Control-Allow-Origin'),safari);
+ const bad=await worker.fetch(new Request(base+'/eat',{method:'POST',headers:{Origin:'safari-web-extension://evil'},body:JSON.stringify({event:id})}),{IP_HMAC_SECRET:'secret'});
+ assert.equal(bad.status,403);
+});
