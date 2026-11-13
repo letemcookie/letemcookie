@@ -4,6 +4,8 @@ const ORIGINS = new Set(['https://letemcookie.com', 'https://www.letemcookie.com
 const SAFARI_EXTENSION = /^safari-web-extension:\/\/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const allowedOrigin = (origin) => ORIGINS.has(origin) || SAFARI_EXTENSION.test(origin);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// /eat counts observed dismissals, /miss counts user-picked missed banners. Same UUID-only event.
+const TABLES = new Map([['/eat','events'],['/miss','missed_events']]);
 const headers = (origin) => ({
   'Access-Control-Allow-Origin': allowedOrigin(origin) ? origin : 'https://letemcookie.com',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -25,10 +27,11 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null,{status:204,headers:headers(origin)});
     try {
       if (url.pathname === '/stats' && request.method === 'GET') {
-        const total = await env.DB.prepare('SELECT eaten FROM totals WHERE id=1').first();
-        return response({eaten:total?.eaten || 0, metric:'observed_banner_dismissals', since:env.COUNTING_SINCE || null});
+        const total = await env.DB.prepare('SELECT eaten, missed FROM totals WHERE id=1').first();
+        return response({eaten:total?.eaten || 0, missed:total?.missed || 0, metric:'observed_banner_dismissals', since:env.COUNTING_SINCE || null});
       }
-      if (url.pathname !== '/eat' || request.method !== 'POST') return response({error:'not found'},404);
+      const table = TABLES.get(url.pathname);
+      if (!table || request.method !== 'POST') return response({error:'not found'},404);
       // This is a speed bump, not authentication: a public extension cannot keep a secret.
       if (!allowedOrigin(origin)) return response({error:'origin'},403);
       if (!env.IP_HMAC_SECRET) return response({error:'not ready'},503);
@@ -41,7 +44,7 @@ export default {
       if (!ip) return response({error:'network'},400);
       const now=Date.now(), day=new Date(now).toISOString().slice(0,10);
       const hash=await hashIP(ip,day,env.IP_HMAC_SECRET);
-      await env.DB.prepare('INSERT OR IGNORE INTO events(id,day,hash,received) VALUES(?,?,?,?)').bind(data.event,day,hash,now).run();
+      await env.DB.prepare(`INSERT OR IGNORE INTO ${table}(id,day,hash,received) VALUES(?,?,?,?)`).bind(data.event,day,hash,now).run();
       // Successful duplicates and per-IP capped events both acknowledge without recounting.
       return response({ok:true});
     } catch { return response({error:'unavailable'},503); }
@@ -50,6 +53,7 @@ export default {
     // Keep raw-IP-derived hashes and dedup IDs only for 48 hours; aggregates survive.
     ctx.waitUntil(env.DB.batch([
       env.DB.prepare('DELETE FROM events WHERE received < ?').bind(Date.now()-47*3600*1000),
+      env.DB.prepare('DELETE FROM missed_events WHERE received < ?').bind(Date.now()-47*3600*1000),
       env.DB.prepare('DELETE FROM clients WHERE day < ?').bind(new Date(Date.now()-23*3600*1000).toISOString().slice(0,10))
     ]));
   }

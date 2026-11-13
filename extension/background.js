@@ -41,6 +41,8 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     if (msg.type === 'LEC_PICKED' && reportMiss && msg.host && msg.selector) {
       await chrome.tabs.create({ url: reportUrl(msg.host, msg.selector), active: false });
     }
+    // A picked banner is a confirmed miss: count it anonymously, no host or selector.
+    if (msg.type === 'LEC_PICKED') { await recordMiss(); await flushCounter(); }
   }).catch(() => {});
 });
 

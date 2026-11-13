@@ -1,5 +1,6 @@
 'use strict';
 // Pending URLs are never recorded: events contain only a random retry ID and age.
+// kind 'miss' marks a user-picked missed banner; anything else is an observed dismissal.
 // Set this to the observed deployed Worker URL before packaging.
 const COUNTER_API = 'https://letemcookie-counter.chrisbest.workers.dev';
 let sending = false;
@@ -16,7 +17,7 @@ async function flushCounter() {
       if (!state.counterEnabled) break;
       let result;
       try {
-        result=await fetch(COUNTER_API+'/eat',{
+        result=await fetch(COUNTER_API+(event.kind==='miss'?'/miss':'/eat'),{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({event:event.id}), credentials:'omit',referrerPolicy:'no-referrer',
           signal:AbortSignal.timeout(8000)
@@ -33,6 +34,12 @@ async function recordCookie() {
   const {eatenCount=0,counterEnabled=false,counterQueue=[]}=await chrome.storage.local.get(['eatenCount','counterEnabled','counterQueue']);
   const next={eatenCount:eatenCount+1};
   if (counterEnabled) next.counterQueue=[...counterQueue,{id:crypto.randomUUID(),at:Date.now()}].slice(-500);
+  await chrome.storage.local.set(next);
+}
+async function recordMiss() {
+  const {missedCount=0,counterEnabled=false,counterQueue=[]}=await chrome.storage.local.get(['missedCount','counterEnabled','counterQueue']);
+  const next={missedCount:missedCount+1};
+  if (counterEnabled) next.counterQueue=[...counterQueue,{id:crypto.randomUUID(),at:Date.now(),kind:'miss'}].slice(-500);
   await chrome.storage.local.set(next);
 }
 chrome.alarms.create('lec-counter-retry',{periodInMinutes:5});

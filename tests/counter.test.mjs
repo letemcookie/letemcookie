@@ -8,9 +8,13 @@ test('IP HMAC is daily, secret-keyed and not a plain IP',async()=>{
  const a=await hashIP('192.0.2.1','2026-10-15','secret-a');
  assert.equal(a.length,64); assert.notEqual(a,await hashIP('192.0.2.1','2026-10-16','secret-a')); assert.notEqual(a,await hashIP('192.0.2.1','2026-10-15','secret-b'));
 });
-test('stats reads only aggregate, valid schema',async()=>{
+test('stats reads only aggregates, valid schema',async()=>{
+ const r=await worker.fetch(new Request(base+'/stats'),{DB:{prepare:()=>({first:async()=>({eaten:42,missed:7})})}});
+ assert.equal(r.status,200); const j=await r.json(); assert.equal(j.eaten,42); assert.equal(j.missed,7);
+});
+test('stats defaults missed to zero on an old database',async()=>{
  const r=await worker.fetch(new Request(base+'/stats'),{DB:{prepare:()=>({first:async()=>({eaten:42})})}});
- assert.equal(r.status,200); assert.equal((await r.json()).eaten,42);
+ assert.equal((await r.json()).missed,0);
 });
 test('wrong origin, excess data, malformed and absent IP are rejected before DB',async()=>{
  for(const [o,b,ip,status] of [["https://evil.test",{event:id},'192.0.2.1',403],[origin,{event:id,host:'private.test'},'192.0.2.1',400],[origin,{event:'bad'},'192.0.2.1',400],[origin,{event:id},null,400]]){
@@ -35,4 +39,17 @@ test('Safari web extension origin is accepted and reflected; malformed Safari or
  assert.equal(r.status,200);assert.ok(hit);assert.equal(r.headers.get('Access-Control-Allow-Origin'),safari);
  const bad=await worker.fetch(new Request(base+'/eat',{method:'POST',headers:{Origin:'safari-web-extension://evil'},body:JSON.stringify({event:id})}),{IP_HMAC_SECRET:'secret'});
  assert.equal(bad.status,403);
+});
+test('miss endpoint applies the same gates and writes to missed_events',async()=>{
+ const badOrigin=await worker.fetch(new Request(base+'/miss',{method:'POST',headers:{Origin:'https://evil.test','CF-Connecting-IP':'192.0.2.1'},body:JSON.stringify({event:id})}),{IP_HMAC_SECRET:'secret'});
+ assert.equal(badOrigin.status,403);
+ const badEvent=await worker.fetch(new Request(base+'/miss',{method:'POST',headers:{Origin:origin,'CF-Connecting-IP':'192.0.2.1'},body:JSON.stringify({event:'bad'})}),{IP_HMAC_SECRET:'secret'});
+ assert.equal(badEvent.status,400);
+ let sql,args;const env={IP_HMAC_SECRET:'secret',DB:{prepare:(q)=>{sql=q;return {bind:(...a)=>{args=a;return {run:async()=>{}}}}}}};
+ const r=await worker.fetch(new Request(base+'/miss',{method:'POST',headers:{Origin:origin,'CF-Connecting-IP':'192.0.2.1'},body:JSON.stringify({event:id})}),env);
+ assert.equal(r.status,200); assert.ok(sql.includes('missed_events')); assert.equal(args[0],id); assert.ok(!JSON.stringify(args).includes('192.0.2.1'));
+});
+test('unknown paths still 404',async()=>{
+ const r=await worker.fetch(new Request(base+'/nope',{method:'POST',headers:{Origin:origin,'CF-Connecting-IP':'192.0.2.1'},body:JSON.stringify({event:id})}),{IP_HMAC_SECRET:'secret'});
+ assert.equal(r.status,404);
 });

@@ -28,3 +28,22 @@ function installSetup(initial={}) {
 test('new installs count by default without a choice tab',async()=>{const c=installSetup();await c.install({reason:'install'});assert.equal(c.state.counterEnabled,true);assert.equal(c.state.counterChoiceVersion,1);assert.deepEqual(c.tabs,[]);});
 test('existing installs stay off and get a choice once, including when dismissed',async()=>{const c=installSetup();await c.install({reason:'update'});assert.equal(c.state.counterEnabled,false);assert.equal(c.tabs.length,1);await c.install({reason:'update'});assert.equal(c.tabs.length,1);});
 test('a previous opt-out is never reset on update',async()=>{const c=installSetup({counterEnabled:false,counterChoiceVersion:1});await c.install({reason:'update'});assert.equal(c.state.counterEnabled,false);assert.equal(c.tabs.length,0);});
+test('missed picks queue a kind:miss event flushed to /miss',async()=>{const c=setup({counterEnabled:true});await c.run('recordMiss()');assert.equal(c.state.missedCount,1);assert.equal(c.state.counterQueue[0].kind,'miss');await c.run('flushCounter()');assert.equal(c.calls.length,1);assert.ok(c.calls[0].url.endsWith('/miss'));assert.deepEqual(c.state.counterQueue,[]);});
+test('eat and miss events flush to their own endpoints',async()=>{const c=setup({counterEnabled:true});await c.run('recordCookie()');await c.run('recordMiss()');await c.run('flushCounter()');assert.deepEqual(c.calls.map(x=>x.url.split('/').pop()),['eat','miss']);});
+test('disabled counting keeps misses local',async()=>{const c=setup();await c.run('recordMiss()');await c.run('flushCounter()');assert.equal(c.state.missedCount,1);assert.deepEqual(c.calls,[]);assert.deepEqual(c.state.counterQueue,[]);});
+function messageSetup(initial={},responses=[]) {
+ const listeners={},tabs=[],state=structuredClone(initial),calls=[];
+ const context=vm.createContext({crypto:webcrypto,Date,AbortSignal,console,
+  chrome:{runtime:{getURL:x=>'chrome-extension://test/'+x,onMessage:{addListener:f=>listeners.message=f},onInstalled:{addListener(){}},onStartup:{addListener(){}},getManifest:()=>({version:'0.3.1'})},
+   tabs:{create:async x=>tabs.push(x)},
+   action:{setBadgeBackgroundColor:async()=>{},setBadgeText:async()=>{}},
+   alarms:{create(){},onAlarm:{addListener(){}}},
+   storage:{local:{get:async keys=>Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(k=>[k,structuredClone(state[k])])),set:async x=>Object.assign(state,structuredClone(x))},onChanged:{addListener(){}}}},
+  fetch:async(url,options)=>{calls.push({url,options});if(responses[0] instanceof Error)throw responses.shift();return responses.shift()||{ok:true};},
+  importScripts:file=>{vm.runInContext(fs.readFileSync(new URL('../extension/'+file,import.meta.url),'utf8'),context);}
+ });
+ vm.runInContext(fs.readFileSync(new URL('../extension/background.js',import.meta.url),'utf8'),context);
+ return {state,calls,tabs,run:expr=>vm.runInContext(expr,context),msg:(m,sender)=>listeners.message(m,sender||{tab:{id:1},url:'https://example.test/page'})};
+}
+test('a picked missed banner counts one anonymous miss',async()=>{const c=messageSetup({counterEnabled:true,counterChoiceVersion:1,firstNoticeShown:true});c.msg({type:'LEC_PICKED',host:'example.test',selector:'#accept'});await c.run('update');assert.equal(c.state.missedCount,1);assert.equal(c.calls.length,1);assert.ok(c.calls[0].url.endsWith('/miss'));assert.deepEqual(c.state.counterQueue,[]);assert.deepEqual(c.tabs,[]);});
+test('a pick with reportMiss still opens only the manual GitHub draft',async()=>{const c=messageSetup({counterEnabled:false,counterChoiceVersion:1,firstNoticeShown:true,reportMiss:true});c.msg({type:'LEC_PICKED',host:'example.test',selector:'#accept'});await c.run('update');assert.equal(c.state.missedCount,1);assert.deepEqual(c.calls,[]);assert.equal(c.tabs.length,1);assert.ok(c.tabs[0].url.startsWith('https://github.com/letemcookie/letemcookie/issues/new'));});
