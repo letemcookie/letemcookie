@@ -50,9 +50,9 @@ Saved rejection wins over the extension marker. The marker is preference automat
 
 ## Browser extension
 
-The separate [Chrome extension](https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig) tries to click Accept all on recognized banners. It is accept-all, not a privacy tool. Some banners escape; a click is not proof of saved consent. [Extension source](extension/) and [privacy details](https://letemcookie.com/privacy/).
+The separate browser extension tries to click Accept all on recognized banners. It is accept-all, not a privacy tool. Some banners escape; a click is not proof of saved consent. Get it for [Chrome](https://chromewebstore.google.com/detail/let-em-cookie/gcngilgdbfbghagejgjependcpbckdig) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/let-em-cookie/). Edge users can install the Chrome build from the Chrome Web Store; a dedicated Edge Add-ons listing is on hold after Microsoft repeatedly blocked the publisher account signup (November 2026). [Extension source](extension/) and [privacy details](https://letemcookie.com/privacy/).
 
-Public store version and pending extension source can differ. The pending v0.3.0 counting behavior is described in [counter setup](counter/README.md); it is not library telemetry. The library has no analytics requests.
+Public store version and pending extension source can differ. The v0.3.1 counting behavior is described in [counter setup](counter/README.md); it is not library telemetry. The library has no analytics requests.
 
 ## Tests
 
